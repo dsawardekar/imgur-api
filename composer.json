@@ -19,5 +19,10 @@
   },
   "require":{
     "rmccue/requests":"~1.6.0"
+  },
+  "autoload":{
+    "psr-4":{
+      "Imgur\\": "lib/Imgur"
+    }
   }
 }
