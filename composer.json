@@ -2,7 +2,7 @@
   "name": "dsawardekar/imgur-api",
   "version": "0.1.0",
   "type": "library",
-  "description": "Library for using Imgur in PHP",
+  "description": "Library for using the Imgur API in PHP",
   "keywords": ["imgur","api", "images"],
   "homepage": "http://github.com/dsawardekar/imgur-api",
   "license": "MIT",
