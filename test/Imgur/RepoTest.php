@@ -16,7 +16,7 @@ class RepoTest extends \PHPUnit_Framework_TestCase {
     $this->container = new Container();
     $this->container
       ->factory('imgurRequest', 'Imgur\Request')
-      ->singleton('imgurCredentials', 'Imgur\Credentials')
+      ->object('imgurCredentials', CachedCredentials::getInstance())
       ->singleton('imgurAdapter', 'Imgur\Adapter')
       ->singleton('imgurRepo', 'Imgur\Repo');
 
@@ -24,8 +24,6 @@ class RepoTest extends \PHPUnit_Framework_TestCase {
     $this->adapter = $this->container->lookup('imgurAdapter');
     $this->repo    = $this->container->lookup('imgurRepo');
 
-    $this->clientId = getenv('IMGUR_CLIENT_ID');
-    $this->cred->setClientId($this->clientId);
     $this->repo->setModel('album');
   }
 

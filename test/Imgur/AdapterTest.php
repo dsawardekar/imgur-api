@@ -9,8 +9,6 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
   public $container;
   public $cred;
   public $adapter;
-  public $clientId;
-  public $clientSecret;
 
   function setUp() {
     $this->container = new Container();
@@ -20,12 +18,6 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
 
     $this->cred    = $this->container->lookup('imgurCredentials');
     $this->adapter = $this->container->lookup('imgurAdapter');
-
-    $this->cred->setClientId('');
-    $this->cred->setClientSecret('');
-
-    $this->clientId = getenv('IMGUR_CLIENT_ID');
-    $this->clientSecret = getenv('IMGUR_CLIENT_SECRET');
   }
 
   function test_it_has_credentials() {
@@ -108,7 +100,7 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
 
   function test_it_knows_if_client_secret_is_missing_for_verify_pin() {
     if (getenv('IMGUR_SKIP_REMOTE')) return;
-    $this->cred->setClientId($this->clientId);
+    $this->cred->setClientId(getenv('IMGUR_CLIENT_ID'));
     $this->setExpectedException('Imgur\Exception');
 
     $actual = $this->adapter->verifyPin('foo');
@@ -116,8 +108,8 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
 
   function test_it_knows_if_pin_is_invalid() {
     if (getenv('IMGUR_SKIP_REMOTE')) return;
-    $this->cred->setClientId($this->clientId);
-    $this->cred->setClientSecret($this->clientSecret);
+    $this->cred->setClientId(getenv('IMGUR_CLIENT_ID'));
+    $this->cred->setClientSecret(getenv('IMGUR_CLIENT_SECRET'));
     $this->setExpectedException('Imgur\Exception');
     $actual = $this->adapter->verifyPin('foo');
   }
@@ -129,15 +121,16 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
     $pin = getenv('IMGUR_PIN');
     if (!$pin) return;
 
-    $this->cred->setClientId($this->clientId);
-    $this->cred->setClientSecret($this->clientSecret);
-    $actual = $this->adapter->verifyPin($pin);
+    $this->cred = CachedCredentials::getInstance();
+    $this->adapter->imgurCredentials = $this->cred;
 
-    echo "\naccess_token: {$this->cred->getAccessToken()}";
-    echo "\nrefresh_token: {$this->cred->getRefreshToken()}\n";
+    $actual = $this->adapter->verifyPin($pin);
 
     $this->assertTrue($actual);
     $this->assertTrue($this->adapter->isAuthorized());
+
+    echo "\nAccess Token: " . $this->cred->getAccessToken() . "\n";
+    echo "\nRefresh Token: " . $this->cred->getRefreshToken() . "\n";
 
     $this->assertNotEquals('', $this->cred->getAccessToken());
     $this->assertNotEquals('', $this->cred->getRefreshToken());
@@ -149,15 +142,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
     $refreshToken = getenv('IMGUR_REFRESH_TOKEN');
     if (!$refreshToken) return;
 
-    $this->cred->setClientId($this->clientId);
-    $this->cred->setClientSecret($this->clientSecret);
-    $this->cred->setAccessToken('foo');
-    $this->cred->setRefreshToken($refreshToken);
-    $this->cred->setAccessTokenExpiry(0);
+    $this->cred = CachedCredentials::getInstance();
+    $this->adapter->imgurCredentials = $this->cred;
 
     $actual = $this->adapter->refreshAccessToken();
-    echo "\naccess_token: {$this->cred->getAccessToken()}";
-    echo "\nrefresh_token: {$this->cred->getRefreshToken()}\n";
 
     $this->assertTrue($actual);
 
@@ -172,11 +160,8 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
     $refreshToken = getenv('IMGUR_REFRESH_TOKEN');
     if (!$accessToken || !$refreshToken) return;
 
-    $this->cred->setClientId($this->clientId);
-    $this->cred->setClientSecret($this->clientSecret);
-    $this->cred->setAccessToken($accessToken);
-    $this->cred->setRefreshToken($refreshToken);
-    $this->cred->setAccessTokenExpiry(3600);
+    $this->cred = CachedCredentials::getInstance();
+    $this->adapter->imgurCredentials = $this->cred;
 
     $request = new Request();
     $request->setRoute('album/V9E5t');
@@ -191,12 +176,10 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
     $refreshToken = getenv('IMGUR_REFRESH_TOKEN');
     if (!$accessToken || !$refreshToken) return;
 
-    $this->cred->setClientId($this->clientId);
-    $this->cred->setClientSecret($this->clientSecret);
-    $this->cred->setAccessToken($accessToken);
-    $this->cred->setRefreshToken($refreshToken);
-    $this->cred->setAccessTokenExpiry(0);
+    $this->cred = CachedCredentials::getInstance();
+    $this->adapter->imgurCredentials = $this->cred;
 
+    $this->cred->setAccessTokenExpiry(0);
     $this->assertTrue($this->cred->hasAccessTokenExpired());
 
     $request = new Request();

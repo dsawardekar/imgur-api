@@ -11,14 +11,12 @@ class AlbumRepoTest extends \PHPUnit_Framework_TestCase {
   public $adapter;
   public $repo;
   public $imageRepo;
-  public $clientId;
-  public $clientSecret;
 
   function setUp() {
     $this->container = new Container();
     $this->container
       ->factory('imgurRequest', 'Imgur\Request')
-      ->singleton('imgurCredentials', 'Imgur\Credentials')
+      ->object('imgurCredentials', CachedCredentials::getInstance())
       ->singleton('imgurAdapter', 'Imgur\Adapter')
       ->singleton('imgurImageRepo', 'Imgur\ImageRepo')
       ->singleton('imgurAlbumRepo', 'Imgur\AlbumRepo');
@@ -27,10 +25,6 @@ class AlbumRepoTest extends \PHPUnit_Framework_TestCase {
     $this->adapter = $this->container->lookup('imgurAdapter');
     $this->repo    = $this->container->lookup('imgurAlbumRepo');
     $this->imageRepo    = $this->container->lookup('imgurImageRepo');
-
-    $this->clientId = getenv('IMGUR_CLIENT_ID');
-    $this->clientSecret = getenv('IMGUR_CLIENT_SECRET');
-    $this->cred->setClientId($this->clientId);
   }
 
   function test_it_has_album_model_name() {
@@ -99,11 +93,7 @@ class AlbumRepoTest extends \PHPUnit_Framework_TestCase {
     $refreshToken = getenv('IMGUR_REFRESH_TOKEN');
     if (!$accessToken || !$refreshToken) return;
 
-    $this->cred->setClientId($this->clientId);
-    $this->cred->setClientSecret($this->clientSecret);
-    $this->cred->setAccessToken($accessToken);
-    $this->cred->setRefreshToken($refreshToken);
-    $this->cred->setAccessTokenExpiry(0);
+    $this->cred->load();
 
     $params = array(
       'title' => 'test_image',
@@ -128,7 +118,8 @@ class AlbumRepoTest extends \PHPUnit_Framework_TestCase {
   function test_it_can_add_images_to_anonymous_album() {
     if (getenv('IMGUR_SKIP_REMOTE')) return;
 
-    $this->cred->setClientId($this->clientId);
+    $this->cred->clear();
+    $this->cred->setClientId(getenv('IMGUR_CLIENT_ID'));
 
     $params = array(
       'title' => 'test_image',
