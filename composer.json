@@ -15,9 +15,18 @@
     }
   ],
   "require-dev": {
-    "phpunit/phpunit": "~3.7.0"
+    "phpunit/phpunit": "~3.7.0",
+    "php-vcr/php-vcr": "dev-master",
+    "php-vcr/phpunit-testlistener-vcr": "dev-master"
   },
   "require":{
-    "rmccue/requests":"~1.6.0"
+    "rmccue/requests":"~1.6.0",
+    "dsawardekar/encase-php": "~0.1.0",
+    "rmccue/requests": ">=1.0"
+  },
+  "autoload":{
+    "psr-4":{
+      "Imgur\\": "lib/Imgur"
+    }
   }
 }
