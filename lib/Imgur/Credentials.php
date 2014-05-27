@@ -4,12 +4,15 @@ namespace Imgur;
 
 class Credentials {
 
-  protected $clientId;
-  protected $clientSecret;
-  protected $accessToken;
-  protected $accessTokenExpiry;
-  protected $accessTokenDuration = 3600; /* seconds */
+  protected $clientId     = '';
+  protected $clientSecret = '';
+  protected $accessToken  = '';
   protected $refreshToken;
+
+  /* seconds */
+  public $accessTokenExpiry;
+  public $accessTokenDuration = 3600;
+  public $expiryBuffer = 10;
 
   public $now = null;
 
@@ -55,10 +58,16 @@ class Credentials {
   }
 
   function hasAccessTokenExpired() {
-    $now = $this->currentTime();
-    $diff = abs($this->getAccessTokenExpiry() - $now);
+    $now    = $this->currentTime();
+    $expiry = $this->getAccessTokenExpiry();
+    $now   += $this->expiryBuffer;
 
-    return $diff >= $this->getAccessTokenDuration();
+    if ($expiry >= $now) {
+      $diff = $expiry - $now;
+      return $diff >= $this->getAccessTokenDuration();
+    } else {
+      return true;
+    }
   }
 
   function getRefreshToken() {

@@ -62,7 +62,7 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
 
   function test_it_knows_if_access_has_not_expired_after_small_time_interval() {
     $this->cred->setAccessTokenExpiry(60);
-    $this->cred->now = strtotime('+60 seconds');
+    $this->cred->now = strtotime('+49 seconds');
 
     $this->assertFalse($this->cred->hasAccessTokenExpired());
   }
@@ -70,6 +70,17 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
   function test_it_stores_refresh_token() {
     $this->cred->setRefreshToken('foo');
     $this->assertEquals('foo', $this->cred->getRefreshToken());
+  }
+
+  function test_it_knows_if_stored_expiry_has_not_expired() {
+    $this->cred->accessTokenExpiry = strtotime('+60 seconds');
+    $this->assertFalse($this->cred->hasAccessTokenExpired());
+  }
+
+  function test_it_knows_if_stored_expiry_has_expired() {
+    $this->cred->accessTokenExpiry = strtotime('now');
+    $this->cred->now = strtotime('+60 minutes');
+    $this->assertTrue($this->cred->hasAccessTokenExpired());
   }
 
 }
