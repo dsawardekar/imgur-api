@@ -35,4 +35,9 @@ class PackagerTest extends \PHPUnit_Framework_TestCase {
     $this->assertInstanceOf('Imgur\AlbumRepo', $albumRepo);
   }
 
+  function test_it_register_imgur_request() {
+    $request = $this->container->lookup('imgurRequest');
+    $this->assertInstanceOf('Imgur\Request', $request);
+  }
+
 }
