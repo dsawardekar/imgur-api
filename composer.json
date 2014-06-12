@@ -18,7 +18,7 @@
     "phpunit/phpunit": "~3.7.0"
   },
   "require":{
-    "dsawardekar/encase-php": "~0.1.0",
+    "dsawardekar/encase-php": "~0.2.0",
     "rmccue/requests": ">=1.0"
   },
   "autoload":{
