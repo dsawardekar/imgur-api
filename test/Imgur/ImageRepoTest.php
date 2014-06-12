@@ -45,6 +45,26 @@ class ImageRepoTest extends \PHPUnit_Framework_TestCase {
     $file = file_get_contents('test/images/wordpress-logo.png');
     $params = array(
       'title' => 'test_image',
+      'image' => $file,
+      'type'  => 'file'
+    );
+
+    $image = $this->repo->create($params);
+    $deleteHash = $image['deletehash'];
+    $this->assertNotEquals('', $image['deletehash']);
+
+    $image = $this->repo->find($image['id']);
+    $this->assertEquals('test_image', $image['title']);
+
+    $this->repo->delete($deleteHash);
+  }
+
+  function test_it_can_create_new_image_from_base64_local_file() {
+    if (getenv('IMGUR_SKIP_REMOTE')) return;
+
+    $file = file_get_contents('test/images/wordpress-logo.png');
+    $params = array(
+      'title' => 'test_image',
       'image' => base64_encode($file),
       'type'  => 'base64'
     );
