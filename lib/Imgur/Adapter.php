@@ -104,10 +104,14 @@ class Adapter {
   function getSession() {
     if (is_null($this->session)) {
       $this->session = new Requests_Session();
-      $this->session->options['timeout'] = 60;
+      $this->session->options['timeout'] = $this->getTimeout();
     }
 
     return $this->session;
+  }
+
+  function getTimeout() {
+    return 60;
   }
 
   function toSessionMethod($method) {

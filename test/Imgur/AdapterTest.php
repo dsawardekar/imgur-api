@@ -36,6 +36,15 @@ class AdapterTest extends \PHPUnit_Framework_TestCase {
     $this->assertTrue($this->adapter->isAuthorized());
   }
 
+  function test_it_has_default_timeout() {
+    $this->assertEquals(60, $this->adapter->getTimeout());
+  }
+
+  function test_it_sets_default_timeout_on_session() {
+    $session = $this->adapter->getSession();
+    $this->assertEquals(60, $session->options['timeout']);
+  }
+
   function test_it_can_build_authorize_url_without_response_type() {
     $this->cred->setClientId('foo');
     $url = $this->adapter->authorizeUrl();
