@@ -11,8 +11,8 @@ class Adapter {
   public $imgurCredentials;
 
   public $apiEndpoint = 'https://api.imgur.com';
-  public $apiVersion = '3';
-  public $session = null;
+  public $apiVersion  = '3';
+  public $session     = null;
 
   function needs() {
     return array('imgurCredentials');
@@ -27,7 +27,7 @@ class Adapter {
   function authorizeUrl($responseType = 'pin') {
     $endpoint = $this->apiEndpoint . '/oauth2/authorize';
     $args = array(
-      'client_id' => $this->imgurCredentials->getClientId(),
+      'client_id'     => $this->imgurCredentials->getClientId(),
       'response_type' => $responseType
     );
 
@@ -48,9 +48,9 @@ class Adapter {
   function exchangeTokens($type, $value) {
     $url = $this->apiEndpoint . '/oauth2/token';
     $params = array(
-      'client_id' => $this->imgurCredentials->getClientId(),
+      'client_id'     => $this->imgurCredentials->getClientId(),
       'client_secret' => $this->imgurCredentials->getClientSecret(),
-      'grant_type' => $type
+      'grant_type'    => $type
     );
 
     $params[$type] = $value;
@@ -59,7 +59,7 @@ class Adapter {
     );
 
     $response = Requests::post($url, $headers, $params);
-    $json = $this->parseBody($response->body);
+    $json     = $this->parseBody($response->body);
 
     if ($response->success) {
       $this->updateCredentials($json);
@@ -77,7 +77,6 @@ class Adapter {
 
     $url  = $this->apiEndpoint . '/' . $this->apiVersion;
     $url .= '/' . $request->getRoute();
-    //var_dump($url);
 
     $session     = $this->getSession();
     $method      = $this->toSessionMethod($request->getMethod());
@@ -105,9 +104,14 @@ class Adapter {
   function getSession() {
     if (is_null($this->session)) {
       $this->session = new Requests_Session();
+      $this->session->options['timeout'] = $this->getTimeout();
     }
 
     return $this->session;
+  }
+
+  function getTimeout() {
+    return 60;
   }
 
   function toSessionMethod($method) {
@@ -130,9 +134,8 @@ class Adapter {
   }
 
   function parseBody($body) {
-    //var_dump($body);
     $json = json_decode($body, true);
-    if (json_last_error() === JSON_ERROR_NONE) {
+    if (is_array($json)) {
       return $json;
     } else {
       throw new Exception('Invalid JSON return from server.');
