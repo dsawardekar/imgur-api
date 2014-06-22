@@ -58,7 +58,8 @@ class Adapter {
       'Authorization' => 'Client-ID ' . $this->imgurCredentials->getClientId()
     );
 
-    $response = Requests::post($url, $headers, $params);
+    $session  = $this->getSession();
+    $response = $session->post($url, $headers, $params);
     $json     = $this->parseBody($response->body);
 
     if ($response->success) {
@@ -138,7 +139,13 @@ class Adapter {
     if (is_array($json)) {
       return $json;
     } else {
-      throw new Exception('Invalid JSON return from server.');
+      $result = preg_match_all('/(Error.*)</m', $body, $matches);
+
+      if ($result === 1) {
+        throw new Exception('Imgur API Failed with ' . $matches[1][0]);
+      } else {
+        throw new Exception('Invalid JSON returned from Imgur server.');
+      }
     }
   }
 
