@@ -41,15 +41,26 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
     $this->assertEquals(100, $this->cred->getAccessTokenDuration());
   }
 
+  function test_it_knows_if_raw_access_token_has_not_expired() {
+    $timestamp = strtotime('+ 1minute');
+    $this->cred->accessTokenExpiry = $timestamp;
+    $this->assertFalse($this->cred->hasAccessTokenExpired());
+  }
+
+  function test_it_knows_if_raw_access_token_has_expired() {
+    $timestamp = strtotime('- 1minute');
+    $this->cred->accessTokenExpiry = $timestamp;
+
+    $this->assertTrue($this->cred->hasAccessTokenExpired());
+  }
+
   function test_it_knows_if_access_token_has_not_expired() {
     $this->cred->setAccessTokenExpiry(60);
     $this->assertFalse($this->cred->hasAccessTokenExpired());
   }
 
   function test_it_knows_if_access_token_has_expired() {
-    $this->cred->setAccessTokenExpiry(60);
-    $this->cred->setAccessTokenDuration(30);
-
+    $this->cred->setAccessTokenExpiry(-60);
     $this->assertTrue($this->cred->hasAccessTokenExpired());
   }
 
@@ -61,8 +72,29 @@ class CredentialsTest extends \PHPUnit_Framework_TestCase {
   }
 
   function test_it_knows_if_access_has_not_expired_after_small_time_interval() {
-    $this->cred->setAccessTokenExpiry(60);
+    $this->cred->setAccessTokenExpiry(120);
     $this->cred->now = strtotime('+49 seconds');
+
+    $this->assertFalse($this->cred->hasAccessTokenExpired());
+  }
+
+  /*
+   * access token 2 minutes in future
+   * time travel to 61 seconds in future
+   * thats 1 second more than the expiry buffer
+   * Hence, accessToken has expired.
+   */
+  function test_it_knows_if_access_has_expired_if_valid_but_within_expiry_buffer() {
+    $this->cred->setAccessTokenExpiry(120);
+    $this->cred->now = strtotime('+61 seconds');
+
+    $this->assertTrue($this->cred->hasAccessTokenExpired());
+  }
+
+  /* tiny variant on above, last call to get inside the expiry */
+  function test_it_knows_if_access_has_expired_if_valid_but_outside_expiry_buffer() {
+    $this->cred->setAccessTokenExpiry(120);
+    $this->cred->now = strtotime('+59 seconds');
 
     $this->assertFalse($this->cred->hasAccessTokenExpired());
   }

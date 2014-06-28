@@ -12,7 +12,7 @@ class Credentials {
   /* seconds */
   public $accessTokenExpiry;
   public $accessTokenDuration = 3600;
-  public $expiryBuffer = 10;
+  public $expiryBuffer = 60;
 
   public $now = null;
 
@@ -60,11 +60,10 @@ class Credentials {
   function hasAccessTokenExpired() {
     $now    = $this->currentTime();
     $expiry = $this->getAccessTokenExpiry();
-    $now   += $this->expiryBuffer;
 
     if ($expiry >= $now) {
       $diff = $expiry - $now;
-      return $diff >= $this->getAccessTokenDuration();
+      return $diff < $this->expiryBuffer;
     } else {
       return true;
     }
