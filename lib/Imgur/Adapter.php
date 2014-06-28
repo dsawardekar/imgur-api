@@ -42,7 +42,9 @@ class Adapter {
 
   function refreshAccessToken() {
     $refreshToken = $this->imgurCredentials->getRefreshToken();
-    return $this->exchangeTokens('refresh_token', $refreshToken);
+    $this->exchangeTokens('refresh_token', $refreshToken);
+
+    return $this->imgurCredentials->getAccessToken();
   }
 
   function exchangeTokens($type, $value) {
@@ -58,7 +60,8 @@ class Adapter {
       'Authorization' => 'Client-ID ' . $this->imgurCredentials->getClientId()
     );
 
-    $response = Requests::post($url, $headers, $params);
+    $session  = $this->getSession();
+    $response = $session->post($url, $headers, $params);
     $json     = $this->parseBody($response->body);
 
     if ($response->success) {
@@ -72,7 +75,7 @@ class Adapter {
   function invoke($request) {
     $accessToken = $this->imgurCredentials->getAccessToken();
     if ($accessToken !== '' && $this->imgurCredentials->hasAccessTokenExpired()) {
-      $this->refreshAccessToken();
+      $accessToken = $this->refreshAccessToken();
     }
 
     $url  = $this->apiEndpoint . '/' . $this->apiVersion;
@@ -138,7 +141,13 @@ class Adapter {
     if (is_array($json)) {
       return $json;
     } else {
-      throw new Exception('Invalid JSON return from server.');
+      $result = preg_match_all('/(Error.*)</m', $body, $matches);
+
+      if ($result === 1) {
+        throw new Exception('Imgur API Failed with ' . $matches[1][0]);
+      } else {
+        throw new Exception('Invalid JSON returned from Imgur server.');
+      }
     }
   }
 

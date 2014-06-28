@@ -4,6 +4,6 @@ namespace Imgur;
 
 class Version {
 
-  static public $version = '0.3.0';
+  static public $version = '0.4.0';
 
 }
