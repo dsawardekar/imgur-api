@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "0d8c7bf7c78796681d95ef6c2cdb3898",
+    "hash": "6e5801890249184ede3ac46952d9625f",
     "packages": [
         {
             "name": "dsawardekar/encase-php",
