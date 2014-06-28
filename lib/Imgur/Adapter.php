@@ -42,7 +42,9 @@ class Adapter {
 
   function refreshAccessToken() {
     $refreshToken = $this->imgurCredentials->getRefreshToken();
-    return $this->exchangeTokens('refresh_token', $refreshToken);
+    $this->exchangeTokens('refresh_token', $refreshToken);
+
+    return $this->imgurCredentials->getAccessToken();
   }
 
   function exchangeTokens($type, $value) {
@@ -73,7 +75,7 @@ class Adapter {
   function invoke($request) {
     $accessToken = $this->imgurCredentials->getAccessToken();
     if ($accessToken !== '' && $this->imgurCredentials->hasAccessTokenExpired()) {
-      $this->refreshAccessToken();
+      $accessToken = $this->refreshAccessToken();
     }
 
     $url  = $this->apiEndpoint . '/' . $this->apiVersion;
