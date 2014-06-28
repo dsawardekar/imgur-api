@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.4.0
+
+* Improves error messaging if Imgur API is down.
+* Improves access token expiry detection.
+* Fixes refreshed access token for in flight requests.
+
 ### 0.3.0
 
 * Adds Request to Packager.
